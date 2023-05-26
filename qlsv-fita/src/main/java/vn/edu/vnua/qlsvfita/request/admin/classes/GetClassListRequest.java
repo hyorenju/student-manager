@@ -1,0 +1,17 @@
+package vn.edu.vnua.qlsvfita.request.admin.classes;
+
+import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+@Data
+public class GetClassListRequest{
+    private String id;
+
+    @NotNull(message = "Số trang không được để trống")
+    private Integer page;
+
+    @NotNull(message = "Số bản ghi mỗi trang không được để trống")
+    private Integer size;
+}
