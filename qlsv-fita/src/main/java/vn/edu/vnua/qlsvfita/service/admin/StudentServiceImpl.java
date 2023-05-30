@@ -313,36 +313,32 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void importToDatabase(MultipartFile file) throws IOException, ParseException {
         // Đọc dữ liệu từ tệp Excel
-        Workbook workbook = new XSSFWorkbook(file.getInputStream());
-        Sheet sheet = workbook.getSheetAt(0);
-        Iterator<Row> rowIterator = sheet.iterator();
-        while (rowIterator.hasNext()) {
-            Row row = rowIterator.next();
-            Cell cell1 = row.getCell(0);
-            Cell cell2 = row.getCell(1);
-            Cell cell3 = row.getCell(2);
-            Cell cell4 = row.getCell(3);
-            Cell cell5 = row.getCell(4);
+//        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+//        Sheet sheet = workbook.getSheetAt(0);
+//        Iterator<Row> rowIterator = sheet.iterator();
+//        while (rowIterator.hasNext()) {
+//            Row row = rowIterator.next();
+//            Cell cell1 = row.getCell(0);
+//            Cell cell2 = row.getCell(1);
+//            Cell cell3 = row.getCell(2);
+//            Cell cell4 = row.getCell(3);
+//            Cell cell5 = row.getCell(4);
+//
+//            if (studentRepository.existsById(String.valueOf((int) row.getCell(0).getNumericCellValue()))) {
+//                throw new RuntimeException("Có ít nhất 1 mã sinh viên đã tồn tại trong hệ thống");
+//            }
+//
+//            Student student = new Student();
+//            student.setId(cell1.getStringCellValue());
+//            String name = cell2.getStringCellValue() + " " + cell3.getStringCellValue();
+//            student.setName(name);
+//            student.setDob(MyUtils.convertTimestampFromString(cell4.getStringCellValue()));
+//            student.setHomeTown(cell5.getStringCellValue());
+//
+//            studentRepository.saveAndFlush(student);
+//        }
+//        workbook.close();
 
-            if (studentRepository.existsById(cell1.getStringCellValue())) {
-                throw new RuntimeException("Có ít nhất 1 mã sinh viên đã tồn tại trong hệ thống");
-            }
-
-            Student student = new Student();
-            student.setId(cell1.getStringCellValue());
-            String name = cell2.getStringCellValue() + " " + cell3.getStringCellValue();
-            student.setName(name);
-            student.setDob(MyUtils.convertTimestampFromString(cell4.getStringCellValue()));
-            student.setHomeTown(cell5.getStringCellValue());
-
-            studentRepository.saveAndFlush(student);
-        }
-        workbook.close();
-    }
-
-    @Override
-    public void importFileToDatabase(MultipartFile file) throws IOException, ParseException {
-        // Đọc dữ liệu sản phẩm từ tệp Excel
         List<Student> students = new ArrayList<>();
         Workbook workbook = new XSSFWorkbook(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
@@ -352,14 +348,21 @@ public class StudentServiceImpl implements StudentService {
             if (row.getRowNum() == 0) {
                 continue; // Skip header row
             }
+
+            if (studentRepository.existsById(String.valueOf((int) row.getCell(0).getNumericCellValue()))) {
+                throw new RuntimeException("Có ít nhất 1 mã sinh viên đã tồn tại trong hệ thống");
+            }
+
             Student student = new Student();
             student.setId(String.valueOf((int) row.getCell(0).getNumericCellValue()));
-            student.setGender(row.getCell(4).getStringCellValue());
-            student.setClasses(Class.builder().id(row.getCell(5).getStringCellValue()).build());
-            student.setName(row.getCell(13).getStringCellValue());
-            student.setDob(MyUtils.convertTimestampFromString(row.getCell(12).getStringCellValue()));
-//            student.setPrice(new BigDecimal(row.getCell(1).getNumericCellValue()));
-//            student.setQuantity((int) row.getCell(2).getNumericCellValue());
+            String name = row.getCell(1).getStringCellValue() + " " + row.getCell(2).getStringCellValue();
+            student.setName(name);
+            student.setDob(MyUtils.convertTimestampFromString(row.getCell(3).getStringCellValue()));
+            student.setHomeTown(row.getCell(4).getStringCellValue());
+            student.setPassword(encoder.encode(row.getCell(3).getStringCellValue()));
+            student.setStatus("Còn đi học");
+            student.setWarning("Không bị cảnh cáo");
+
             students.add(student);
         }
         workbook.close();
@@ -367,6 +370,34 @@ public class StudentServiceImpl implements StudentService {
         // Lưu sản phẩm vào CSDL
         studentRepository.saveAll(students);
     }
+
+//    @Override
+//    public void importFileToDatabase(MultipartFile file) throws IOException, ParseException {
+//        // Đọc dữ liệu sản phẩm từ tệp Excel
+//        List<Student> students = new ArrayList<>();
+//        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+//        Sheet sheet = workbook.getSheetAt(0);
+//        Iterator<Row> rowIterator = sheet.iterator();
+//        while (rowIterator.hasNext()) {
+//            Row row = rowIterator.next();
+//            if (row.getRowNum() == 0) {
+//                continue; // Skip header row
+//            }
+//            Student student = new Student();
+//            student.setId(String.valueOf((int) row.getCell(0).getNumericCellValue()));
+//            student.setGender(row.getCell(4).getStringCellValue());
+//            student.setClasses(Class.builder().id(row.getCell(5).getStringCellValue()).build());
+//            student.setName(row.getCell(13).getStringCellValue());
+//            student.setDob(MyUtils.convertTimestampFromString(row.getCell(12).getStringCellValue()));
+////            student.setPrice(new BigDecimal(row.getCell(1).getNumericCellValue()));
+////            student.setQuantity((int) row.getCell(2).getNumericCellValue());
+//            students.add(student);
+//        }
+//        workbook.close();
+//
+//        // Lưu sản phẩm vào CSDL
+//        studentRepository.saveAll(students);
+//    }
 
 
 //    @Override

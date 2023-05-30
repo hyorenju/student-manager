@@ -1,18 +1,26 @@
 package vn.edu.vnua.qlsvfita.service.admin;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import vn.edu.vnua.qlsvfita.model.dto.StudentTermDTO;
-import vn.edu.vnua.qlsvfita.model.entity.Student;
-import vn.edu.vnua.qlsvfita.model.entity.StudentTerm;
-import vn.edu.vnua.qlsvfita.model.entity.Term;
+import vn.edu.vnua.qlsvfita.model.entity.*;
+import vn.edu.vnua.qlsvfita.model.entity.Class;
 import vn.edu.vnua.qlsvfita.repository.*;
 import vn.edu.vnua.qlsvfita.request.admin.point.*;
+import vn.edu.vnua.qlsvfita.util.MyUtils;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -117,5 +125,58 @@ public class PointServiceImpl implements PointService {
 //                request.getFilter().getTrainingPoint().getMax()
         );
         return pointRepository.findAll(specification);
+    }
+
+    @Override
+    public void importStudyPoint(MultipartFile file) throws IOException {
+        List<StudentTerm> points = new ArrayList<>();
+        List<Student> students = new ArrayList<>();
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0);
+        Iterator<Row> rowIterator = sheet.iterator();
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+            if (row.getRowNum() == 0) {
+                continue; // Skip header row
+            }
+
+            if (!studentRepository.existsById(String.valueOf((int) row.getCell(0).getNumericCellValue()))) {
+                throw new RuntimeException("Có ít nhất 1 mã sv không tồn tại trong hệ thống");
+            }
+            if (!termRepository.existsById(String.valueOf((int) row.getCell(6).getNumericCellValue()))) {
+                throw new RuntimeException("Có ít nhất 1 mã học kỳ không tồn tại trong hệ thống");
+            }
+
+            Student student = new Student();
+            student.setId(String.valueOf((int) row.getCell(0).getNumericCellValue()));
+            student.setGender(row.getCell(4).getStringCellValue());
+            student.setCourse(Course.builder()
+                    .id(
+                            row.getCell(5).getStringCellValue().substring(0, 3)
+                    )
+                    .build());
+            student.setMajor(Major.builder()
+                    .id(
+                            row.getCell(5).getStringCellValue().substring(3, 7)
+                    )
+                    .build());
+            student.setClasses(Class.builder()
+                    .id(
+                            row.getCell(5).getStringCellValue()
+                    )
+                    .build());
+
+
+            students.add(student);
+        }
+        workbook.close();
+
+        // Lưu sản phẩm vào CSDL
+        studentRepository.saveAll(students);
+    }
+
+    @Override
+    public void importTrainingPoint(MultipartFile file) {
+
     }
 }

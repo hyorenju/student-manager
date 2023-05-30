@@ -28,5 +28,5 @@ public interface StudentService {
     List<StudentExportDTO> exportToExcel(ExportStudentListRequest request);
     void importToDatabase(MultipartFile file) throws IOException, ParseException;
 
-    void importFileToDatabase(MultipartFile file) throws IOException, ParseException;
+//    void importFileToDatabase(MultipartFile file) throws IOException, ParseException;
 }

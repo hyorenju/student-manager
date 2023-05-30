@@ -150,21 +150,15 @@ public class StudentController extends BaseController {
     }
 
     @PostMapping("import")
-    public ResponseEntity<List<FileInfo>> getListFiles() {
-        List<FileInfo> fileInfos = storageService.loadAll().map(path -> {
-            String filename = path.getFileName().toString();
-            String url = MvcUriComponentsBuilder
-                    .fromMethodName(StudentController.class, "getFile", path.getFileName().toString()).build().toString();
-
-            return new FileInfo(filename, url);
-        }).collect(Collectors.toList());
-
-        return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
-    }
-
-    @PostMapping("import/student-info")
-    public ResponseEntity<?> importToDatabase(@RequestParam("file") MultipartFile file) throws IOException, ParseException {
-        studentService.importFileToDatabase(file);
+    @PreAuthorize("hasAnyAuthority('IMPORT_STUDENT_LIST')")
+    public ResponseEntity<?> upload(MultipartFile file) throws IOException, ParseException {
+        studentService.importToDatabase(file);
         return buildItemResponse("Nhập dữ liệu thành công");
     }
+
+//    @PostMapping("import/student-info")
+//    public ResponseEntity<?> importToDatabase(@RequestParam("file") MultipartFile file) throws IOException, ParseException {
+//        studentService.importFileToDatabase(file);
+//        return buildItemResponse("Nhập dữ liệu thành công");
+//    }
 }
