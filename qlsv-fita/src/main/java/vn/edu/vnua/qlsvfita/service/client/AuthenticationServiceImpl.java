@@ -42,19 +42,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        //other option generate jwt token with role
         String jwt = jwtUtils.generateTokenWithAuthorities(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//        List<String> roles = userDetails.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toList());
-//        UserDetailsServiceImpl userDetailsService = (UserDetailsServiceImpl) authentication.getPrincipal();
 
         return new LoginResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
-                userDetails.getRoleId());
+                userDetails.getRoleId(),
+                userDetails.getAvatar());
     }
 }

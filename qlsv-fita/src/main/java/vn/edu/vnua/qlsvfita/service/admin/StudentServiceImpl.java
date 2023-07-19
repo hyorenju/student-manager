@@ -24,11 +24,9 @@ import vn.edu.vnua.qlsvfita.request.admin.student.*;
 import vn.edu.vnua.qlsvfita.util.MyUtils;
 
 import java.io.*;
+import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +39,7 @@ public class StudentServiceImpl implements StudentService {
     private final CourseRepository courseRepository;
     private final MajorRepository majorRepository;
     private final ModelMapper modelMapper = new ModelMapper();
-    private final String[] HEADERS = {"Mã sinh viên", "Họ tên", "Mã khóa", "Mã ngành", "Mã lớp", "Ngày sinh", "Giới tính", "Trạng thái", "Thời gian", "Số điện thoại", "Email", "Quê quán", "Nơi ở hiện tại", "Tên bố", "Sđt bố", "Tên mẹ", "Sđt mẹ", "Diện cảnh cáo"};
+//    private final String[] HEADERS = {"Mã sinh viên", "Họ tên", "Mã khóa", "Mã ngành", "Mã lớp", "Ngày sinh", "Giới tính", "Trạng thái", "Thời gian", "Số điện thoại", "Email", "Quê quán", "Nơi ở hiện tại", "Tên bố", "Sđt bố", "Tên mẹ", "Sđt mẹ", "Diện cảnh cáo"};
 
     @Override
     public List<StudentListDTOTest> getStudenList() {
@@ -82,6 +80,7 @@ public class StudentServiceImpl implements StudentService {
                 request.getFilter().getMajorId(),
                 request.getFilter().getClassId(),
                 request.getFilter().getStatus(),
+                request.getFilter().getWarning(),
                 request.getStudentId()
         );
 
@@ -234,9 +233,7 @@ public class StudentServiceImpl implements StudentService {
             student.setStatus("Bị buộc thôi học");
         }
 
-        if (request.getPassword() == null) {
-            student.setPassword(encoder.encode(student.getPassword()));
-        } else {
+        if (request.getPassword() != null) {
             student.setPassword(encoder.encode(request.getPassword()));
         }
 
@@ -249,11 +246,11 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void deleteStudentById(String id) {
-        if (!studentRepository.existsById(id)) {
-            throw new RuntimeException("Sinh viên " + id + " không tồn tại trong CSDL");
+    public void deleteStudentById(List<String> id) {
+        if (!studentRepository.existsById(id.get(0))) {
+            throw new RuntimeException("Sinh viên " + id.get(0) + " không tồn tại trong CSDL");
         }
-        studentRepository.deleteById(id);
+        studentRepository.deleteAllByIdInBatch(id);
     }
 
 
@@ -280,6 +277,7 @@ public class StudentServiceImpl implements StudentService {
                 request.getFilter().getMajorId(),
                 request.getFilter().getClassId(),
                 request.getFilter().getStatus(),
+                request.getFilter().getWarning(),
                 request.getStudentId()
         );
 
@@ -350,7 +348,7 @@ public class StudentServiceImpl implements StudentService {
             }
 
             if (studentRepository.existsById(String.valueOf((int) row.getCell(0).getNumericCellValue()))) {
-                throw new RuntimeException("Có ít nhất 1 mã sinh viên đã tồn tại trong hệ thống");
+                throw new RuntimeException("Mã sinh viên " + (int) row.getCell(0).getNumericCellValue() + " đã tồn tại");
             }
 
             Student student = new Student();
@@ -361,6 +359,7 @@ public class StudentServiceImpl implements StudentService {
             student.setHomeTown(row.getCell(4).getStringCellValue());
             student.setPassword(encoder.encode(row.getCell(3).getStringCellValue()));
             student.setStatus("Còn đi học");
+            student.setRole(Role.builder().id("STUDENT").build());
             student.setWarning("Không bị cảnh cáo");
 
             students.add(student);

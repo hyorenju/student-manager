@@ -34,8 +34,6 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService{
             Admin admin = adminRepository.getById(request.getValues().getId());
             if(admin.equals(request.getValues().getEmail())){
                 sendMimeEmail(request.getValues().getEmail(), request.getLink());
-//                admin.setPassword("123");
-//                adminRepository.saveAndFlush(admin);
             } else {
                 throw new RuntimeException("Tài khoản hoặc email không trùng khớp");
             }
@@ -83,7 +81,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService{
     private static void sendMimeEmail(String email, String link) {
 
         final String username = "hyorenju@gmail.com";
-        final String password = "aumjtgpnkmxhafwr";
+        final String password = "yywetcrecogeyztq";
 
         Properties props = new Properties();
         props.put("mail.smtp.ssl.protocols", "TLSv1.2");
@@ -111,12 +109,13 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService{
             message.setSubject(subject);
             message.setText(text);
 
-//            Transport transport = session.getTransport("smtp");
-//            transport.connect("smtp.gmail.com", 465, username, password);
-//            transport.sendMessage(message, message.getAllRecipients());
-//            transport.close();
-
             Transport.send(message);
+
+//            SimpleMailMessage message = new SimpleMailMessage();
+//            message.setTo(email);
+//            message.setSubject(subject);
+//            message.setText(text);
+//            mailSender.send(message);
 
         } catch (MessagingException e) {
             throw new RuntimeException(e);

@@ -6,12 +6,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vn.edu.vnua.qlsvfita.controller.BaseController;
+import vn.edu.vnua.qlsvfita.model.dto.AdminDetailDTO;
 import vn.edu.vnua.qlsvfita.model.dto.AdminListDTO;
 import vn.edu.vnua.qlsvfita.model.entity.Admin;
 import vn.edu.vnua.qlsvfita.request.admin.admin.CreateAdminRequest;
 import vn.edu.vnua.qlsvfita.request.admin.admin.GetAdminListRequest;
 import vn.edu.vnua.qlsvfita.request.admin.admin.UpdateAdminRequest;
+import vn.edu.vnua.qlsvfita.request.admin.admin.UpdateMyselfRequest;
 import vn.edu.vnua.qlsvfita.service.admin.AdminService;
 
 import javax.validation.Valid;
@@ -35,6 +38,12 @@ public class AdminController extends BaseController {
         return buildPageItemResponse(request.getPage(), response.size(), page.getTotalElements(), response);
     }
 
+    @PostMapping("detail/{id}")
+    public ResponseEntity<?> getAdminDetail(@PathVariable String id){
+        AdminDetailDTO response = modelMapper.map(adminService.getAdminDetail(id), AdminDetailDTO.class);
+        return buildItemResponse(response);
+    }
+
     @PostMapping("create")
     @PreAuthorize("hasAnyAuthority('CREATE_ADMIN')")
     public ResponseEntity<?> createAdmin(@Valid @RequestBody CreateAdminRequest request){
@@ -45,7 +54,19 @@ public class AdminController extends BaseController {
     @PutMapping("update")
     @PreAuthorize("hasAnyAuthority('UPDATE_ADMIN')")
     public ResponseEntity<?> updateAdmin(@Valid @RequestBody UpdateAdminRequest request){
-        AdminListDTO response = modelMapper.map(adminService.updateAdmin(request), AdminListDTO.class);
+        AdminDetailDTO response = modelMapper.map(adminService.updateAdmin(request), AdminDetailDTO.class);
+        return buildItemResponse(response);
+    }
+
+    @PutMapping("edit")
+    public ResponseEntity<?> updateMyself(@RequestBody UpdateMyselfRequest request){
+        AdminDetailDTO response = modelMapper.map(adminService.updateMyself(request), AdminDetailDTO.class);
+        return buildItemResponse(response);
+    }
+
+    @PostMapping("avatar/{id}")
+    public ResponseEntity<?> updateAvatar(@PathVariable String id, MultipartFile file){
+        AdminDetailDTO response = modelMapper.map(adminService.updateAvatar(id, file), AdminDetailDTO.class);
         return buildItemResponse(response);
     }
 

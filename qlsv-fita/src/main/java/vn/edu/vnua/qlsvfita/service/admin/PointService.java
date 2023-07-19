@@ -22,6 +22,4 @@ public interface PointService {
     List<StudentTerm> exportPointList(ExportPointListRequest request);
 
     void importStudyPoint(MultipartFile file) throws IOException;
-
-    void importTrainingPoint(MultipartFile file);
 }

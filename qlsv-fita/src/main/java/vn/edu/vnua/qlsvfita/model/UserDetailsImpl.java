@@ -23,6 +23,7 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String password;
     private String roleId;
+    private String avatar;
     private Collection<? extends GrantedAuthority> authorities;
 
     @Override

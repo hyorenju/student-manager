@@ -23,7 +23,7 @@ public interface StudentService {
     StudentAccumulationDTO getAccumulation(String id);
     StudentDetailDTO createStudent(CreateStudentRequest request) throws ParseException;
     StudentDetailDTO updateStudent(UpdateStudentRequest request, String id) throws ParseException;
-    void deleteStudentById(String id);
+    void deleteStudentById(List<String> id);
     void deleteAllStudentById(DeleteStudentRequest ids);
     List<StudentExportDTO> exportToExcel(ExportStudentListRequest request);
     void importToDatabase(MultipartFile file) throws IOException, ParseException;

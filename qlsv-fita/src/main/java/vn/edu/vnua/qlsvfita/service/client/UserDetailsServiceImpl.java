@@ -1,10 +1,11 @@
 package vn.edu.vnua.qlsvfita.service.client;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import vn.edu.vnua.qlsvfita.model.UserDetailsImpl;
 import vn.edu.vnua.qlsvfita.model.entity.Admin;
@@ -12,7 +13,7 @@ import vn.edu.vnua.qlsvfita.model.entity.Student;
 import vn.edu.vnua.qlsvfita.repository.AdminRepository;
 import vn.edu.vnua.qlsvfita.repository.StudentRepository;
 
-import java.util.List;
+import javax.persistence.EntityManagerFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .email(admin.getEmail())
                     .password(admin.getPassword())
                     .roleId(admin.getRole().getId())
+                    .avatar(admin.getAvatar())
                     .authorities(admin.getAuthorities())
                     .build();
         } else {

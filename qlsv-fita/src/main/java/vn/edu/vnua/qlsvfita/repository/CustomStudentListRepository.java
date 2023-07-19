@@ -17,6 +17,7 @@ public class CustomStudentListRepository {
                                                            String majorId,
                                                            String classId,
                                                            String status,
+                                                           Boolean warning,
                                                            String studentId) {
         return ((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -31,6 +32,13 @@ public class CustomStudentListRepository {
             }
             if (StringUtils.hasText(status)) {
                 predicates.add(criteriaBuilder.like(root.get("status"), status));
+            }
+            if (warning!=null){
+                if(warning){
+                    predicates.add(criteriaBuilder.notLike(root.get("warning"), "Không bị cảnh cáo"));
+                } else {
+                    predicates.add(criteriaBuilder.like(root.get("warning"), "Không bị cảnh cáo"));
+                }
             }
             if (StringUtils.hasText(studentId)) {
                 predicates.add(criteriaBuilder.like(root.get("id"), studentId + "%"));

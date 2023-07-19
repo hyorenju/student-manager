@@ -10,12 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import vn.edu.vnua.qlsvfita.controller.BaseController;
-import vn.edu.vnua.qlsvfita.model.FileInfo;
 import vn.edu.vnua.qlsvfita.model.dto.*;
 import vn.edu.vnua.qlsvfita.model.entity.Student;
 import vn.edu.vnua.qlsvfita.model.entity.StudentTerm;
 import vn.edu.vnua.qlsvfita.request.admin.student.*;
-import vn.edu.vnua.qlsvfita.service.admin.FilesStorageService;
 import vn.edu.vnua.qlsvfita.service.admin.StatisticsService;
 import vn.edu.vnua.qlsvfita.service.admin.StudentService;
 import vn.edu.vnua.qlsvfita.util.MyUtils;
@@ -33,7 +31,6 @@ import java.util.stream.Collectors;
 public class StudentController extends BaseController {
     private final StudentService studentService;
     private final StatisticsService statisticsService;
-    private final FilesStorageService storageService;
     private final ModelMapper modelMapper = new ModelMapper();
 
 
@@ -110,9 +107,9 @@ public class StudentController extends BaseController {
 
     @PostMapping("delete/{id}")
     @PreAuthorize("hasAnyAuthority('DELETE_STUDENT')")
-    public ResponseEntity<?> deleteStudent(@PathVariable String id){
+    public ResponseEntity<?> deleteStudent(@PathVariable List<String> id){
         studentService.deleteStudentById(id);
-        String message = "Xóa thành công sinh viên "+id;
+        String message = "Xóa thành công sinh viên "+id.get(0);
         return buildItemResponse(message);
     }
 

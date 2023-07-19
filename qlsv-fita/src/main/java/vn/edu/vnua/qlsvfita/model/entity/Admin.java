@@ -32,6 +32,9 @@ public class Admin {
     @Column(name = "password", length = 200)
     private String password;
 
+    @Column(name = "avatar", length = 510)
+    private String avatar;
+
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;

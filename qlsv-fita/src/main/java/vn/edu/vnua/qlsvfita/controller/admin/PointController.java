@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vn.edu.vnua.qlsvfita.controller.BaseController;
 import vn.edu.vnua.qlsvfita.model.dto.PointListDTO;
 import vn.edu.vnua.qlsvfita.model.dto.StudentListDTO;
@@ -16,6 +17,7 @@ import vn.edu.vnua.qlsvfita.request.admin.point.*;
 import vn.edu.vnua.qlsvfita.service.admin.PointService;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,5 +67,12 @@ public class PointController extends BaseController {
                 point -> modelMapper.map(point, PointListDTO.class)
         ).collect(Collectors.toList());
         return buildListItemResponse(response, response.size());
+    }
+
+    @PostMapping("import")
+    @PreAuthorize("hasAnyAuthority('IMPORT_POINT_LIST')")
+    public ResponseEntity<?> importPointList(MultipartFile file) throws IOException {
+        pointService.importStudyPoint(file);
+        return buildItemResponse("Nhập dữ liệu thành công");
     }
 }

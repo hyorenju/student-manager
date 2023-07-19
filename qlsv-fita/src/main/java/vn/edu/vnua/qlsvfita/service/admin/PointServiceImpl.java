@@ -19,6 +19,7 @@ import vn.edu.vnua.qlsvfita.request.admin.point.*;
 import vn.edu.vnua.qlsvfita.util.MyUtils;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,8 @@ public class PointServiceImpl implements PointService {
     private final PointRepository pointRepository;
     private final StudentRepository studentRepository;
     private final TermRepository termRepository;
+    private final MajorRepository majorRepository;
+
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
@@ -140,43 +143,45 @@ public class PointServiceImpl implements PointService {
                 continue; // Skip header row
             }
 
-            if (!studentRepository.existsById(String.valueOf((int) row.getCell(0).getNumericCellValue()))) {
-                throw new RuntimeException("Có ít nhất 1 mã sv không tồn tại trong hệ thống");
-            }
-            if (!termRepository.existsById(String.valueOf((int) row.getCell(6).getNumericCellValue()))) {
-                throw new RuntimeException("Có ít nhất 1 mã học kỳ không tồn tại trong hệ thống");
+            if (pointRepository.existsByStudentIdAndTermId(String.valueOf((int) row.getCell(0).getNumericCellValue()), String.valueOf((int) row.getCell(6).getNumericCellValue()))) {
+                throw new RuntimeException("Dữ liệu của sinh viên " + (int)row.getCell(0).getNumericCellValue() + " trong học kỳ " + (int)row.getCell(6).getNumericCellValue() + " đã tồn tại trong hệ thống");
+            } else if (!studentRepository.existsById(String.valueOf((int) row.getCell(0).getNumericCellValue()))) {
+                throw new RuntimeException("Mã sv " + (int)row.getCell(0).getNumericCellValue() + " không tồn tại");
+            } else if (!termRepository.existsById(String.valueOf((int) row.getCell(6).getNumericCellValue()))) {
+                throw new RuntimeException("Mã học kỳ " + (int)row.getCell(6).getNumericCellValue() + " không tồn tại");
             }
 
-            Student student = new Student();
-            student.setId(String.valueOf((int) row.getCell(0).getNumericCellValue()));
+            Student student = studentRepository.getStudentById(String.valueOf((int) row.getCell(0).getNumericCellValue()));
             student.setGender(row.getCell(4).getStringCellValue());
-            student.setCourse(Course.builder()
-                    .id(
-                            row.getCell(5).getStringCellValue().substring(0, 3)
-                    )
-                    .build());
-            student.setMajor(Major.builder()
-                    .id(
-                            row.getCell(5).getStringCellValue().substring(3, 7)
-                    )
-                    .build());
-            student.setClasses(Class.builder()
-                    .id(
-                            row.getCell(5).getStringCellValue()
-                    )
-                    .build());
-
-
+            for (Major major : majorRepository.findAll()) {
+                if ((row.getCell(5).getStringCellValue().contains(major.getId()))) {
+                    student.setMajor(Major.builder().id(major.getId()).build());
+                    student.setCourse(Course.builder().id(row.getCell(5).getStringCellValue().split(major.getId())[0]).build());
+                }
+            }
+            student.setClasses(Class.builder().id(row.getCell(5).getStringCellValue()).build());
             students.add(student);
+
+            StudentTerm point = new StudentTerm();
+            if (pointRepository.existsByStudentIdAndTermId(String.valueOf((int) row.getCell(0).getNumericCellValue()), String.valueOf((int) row.getCell(6).getNumericCellValue()))) {
+                point.setId(pointRepository.getByStudentIdAndTermId(String.valueOf((int) row.getCell(0).getNumericCellValue()), String.valueOf((int) row.getCell(6).getNumericCellValue())).getId());
+            }
+            point.setStudentId(String.valueOf((int) row.getCell(0).getNumericCellValue()));
+            String name = row.getCell(1).getStringCellValue() + " " + row.getCell(2).getStringCellValue();
+            point.setStudentName(name);
+            point.setTermId(String.valueOf((int) row.getCell(6).getNumericCellValue()));
+            point.setMedScore10((float) row.getCell(7).getNumericCellValue());
+            point.setMedScore4((float) row.getCell(8).getNumericCellValue());
+            point.setScoreAccumulated10((float) row.getCell(9).getNumericCellValue());
+            point.setScoreAccumulated4((float) row.getCell(10).getNumericCellValue());
+            point.setCreditsAccumulated((int) row.getCell(11).getNumericCellValue());
+            point.setTrainingPoint((int) row.getCell(12).getNumericCellValue());
+            points.add(point);
         }
         workbook.close();
 
         // Lưu sản phẩm vào CSDL
         studentRepository.saveAll(students);
-    }
-
-    @Override
-    public void importTrainingPoint(MultipartFile file) {
-
+        pointRepository.saveAll(points);
     }
 }

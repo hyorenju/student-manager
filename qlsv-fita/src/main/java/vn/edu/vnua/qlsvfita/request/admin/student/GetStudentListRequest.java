@@ -19,6 +19,7 @@ public class GetStudentListRequest extends GetPageBaseRequest {
         private String majorId;
         private String classId;
         private String status;
+        private Boolean warning;
         private SortStudentListRequest sort;
     }
 

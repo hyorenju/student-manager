@@ -70,7 +70,6 @@ public class RoleController extends BaseController {
     public ResponseEntity<?> getRole() {
 
         Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
-
 //        UserDetailsImpl userDetails = (UserDetailsImpl)authentication.getDetails();
         return buildItemResponse(roleService.authorization((Collection<SimpleGrantedAuthority>) authentication.getAuthorities()));
     }

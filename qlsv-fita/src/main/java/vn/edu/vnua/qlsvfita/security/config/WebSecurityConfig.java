@@ -19,6 +19,8 @@ import vn.edu.vnua.qlsvfita.security.token.AuthEntryPointJwt;
 import vn.edu.vnua.qlsvfita.security.token.AuthTokenFilter;
 import vn.edu.vnua.qlsvfita.security.token.JwtTokenProvider;
 
+import javax.persistence.EntityManagerFactory;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
